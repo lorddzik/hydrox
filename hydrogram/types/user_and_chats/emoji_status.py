@@ -55,22 +55,31 @@ class EmojiStatus(Object):
     @staticmethod
     def _parse(client, emoji_status: raw.base.EmojiStatus) -> EmojiStatus | None:
         if isinstance(emoji_status, raw.types.EmojiStatus):
-            return EmojiStatus(client=client, custom_emoji_id=emoji_status.document_id)
-
-        if isinstance(emoji_status, raw.types.EmojiStatusUntil):
+            until_date = None
+            if getattr(emoji_status, "until", None) is not None:
+                until_date = utils.timestamp_to_datetime(emoji_status.until)
             return EmojiStatus(
                 client=client,
                 custom_emoji_id=emoji_status.document_id,
-                until_date=utils.timestamp_to_datetime(emoji_status.until),
+                until_date=until_date,
+            )
+
+        collectible_cls = getattr(raw.types, "EmojiStatusCollectible", None)
+        if collectible_cls and isinstance(emoji_status, collectible_cls):
+            until_date = None
+            if getattr(emoji_status, "until", None) is not None:
+                until_date = utils.timestamp_to_datetime(emoji_status.until)
+            return EmojiStatus(
+                client=client,
+                custom_emoji_id=emoji_status.document_id,
+                until_date=until_date,
             )
 
         return None
 
     def write(self):
-        if self.until_date:
-            return raw.types.EmojiStatusUntil(
-                document_id=self.custom_emoji_id,
-                until=utils.datetime_to_timestamp(self.until_date),
-            )
-
-        return raw.types.EmojiStatus(document_id=self.custom_emoji_id)
+        until = utils.datetime_to_timestamp(self.until_date) if self.until_date else None
+        return raw.types.EmojiStatus(
+            document_id=self.custom_emoji_id,
+            until=until,
+        )
