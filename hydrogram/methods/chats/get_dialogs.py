@@ -98,7 +98,15 @@ class GetDialogs:
             offset_id = last.top_message.id
             offset_date = utils.datetime_to_timestamp(last.top_message.date)
             
-            raw_peer_id = utils.get_peer_id(last.chat.id)
+            peer_id = last.chat.id
+            peer_type = utils.get_peer_type(peer_id)
+            if peer_type == "channel":
+                raw_peer_id = utils.get_channel_id(peer_id)
+            elif peer_type == "chat":
+                raw_peer_id = -peer_id
+            else:
+                raw_peer_id = peer_id
+
             if raw_peer_id in users:
                 u = users[raw_peer_id]
                 offset_peer = raw.types.InputPeerUser(user_id=u.id, access_hash=getattr(u, "access_hash", 0))
