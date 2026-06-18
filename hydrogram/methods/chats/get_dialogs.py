@@ -97,7 +97,22 @@ class GetDialogs:
 
             offset_id = last.top_message.id
             offset_date = utils.datetime_to_timestamp(last.top_message.date)
-            offset_peer = await self.resolve_peer(last.chat.id)
+            
+            raw_peer_id = utils.get_peer_id(last.chat.id)
+            if raw_peer_id in users:
+                u = users[raw_peer_id]
+                offset_peer = raw.types.InputPeerUser(user_id=u.id, access_hash=getattr(u, "access_hash", 0))
+            elif raw_peer_id in chats:
+                c = chats[raw_peer_id]
+                if isinstance(c, (raw.types.Chat, raw.types.ChatForbidden)):
+                    offset_peer = raw.types.InputPeerChat(chat_id=c.id)
+                else:
+                    offset_peer = raw.types.InputPeerChannel(channel_id=c.id, access_hash=getattr(c, "access_hash", 0))
+            else:
+                try:
+                    offset_peer = await self.resolve_peer(last.chat.id)
+                except Exception:
+                    offset_peer = raw.types.InputPeerEmpty()
 
             for dialog in dialogs:
                 yield dialog
