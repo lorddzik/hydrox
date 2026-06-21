@@ -56,6 +56,8 @@ class KeyboardButton(Object):
         request_contact: bool | None = None,
         request_location: bool | None = None,
         web_app: types.WebAppInfo = None,
+        style: str | None = None,
+        icon_custom_emoji_id: str | int | None = None,
     ):
         super().__init__()
 
@@ -63,6 +65,8 @@ class KeyboardButton(Object):
         self.request_contact = request_contact
         self.request_location = request_location
         self.web_app = web_app
+        self.style = style
+        self.icon_custom_emoji_id = icon_custom_emoji_id
 
     @staticmethod
     def read(b):

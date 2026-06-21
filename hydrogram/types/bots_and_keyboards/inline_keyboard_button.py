@@ -84,6 +84,8 @@ class InlineKeyboardButton(Object):
         switch_inline_query: str | None = None,
         switch_inline_query_current_chat: str | None = None,
         callback_game: types.CallbackGame = None,
+        style: str | None = None,
+        icon_custom_emoji_id: str | int | None = None,
     ):
         super().__init__()
 
@@ -97,6 +99,8 @@ class InlineKeyboardButton(Object):
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
         self.callback_game = callback_game
         # self.pay = pay
+        self.style = style
+        self.icon_custom_emoji_id = icon_custom_emoji_id
 
     @staticmethod
     def read(b: raw.base.KeyboardButton):

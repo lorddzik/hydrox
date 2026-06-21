@@ -52,7 +52,13 @@ def ikb(rows: list[list[str | tuple[str, str]]] | None = None) -> InlineKeyboard
     return InlineKeyboardMarkup(inline_keyboard=lines)
 
 
-def btn(text: str, value: str, type="callback_data") -> InlineKeyboardButton:
+def btn(
+    text: str,
+    value: str,
+    type="callback_data",
+    style: str | None = None,
+    icon_custom_emoji_id: str | int | None = None,
+) -> InlineKeyboardButton:
     """
     Create an InlineKeyboardButton.
 
@@ -66,10 +72,21 @@ def btn(text: str, value: str, type="callback_data") -> InlineKeyboardButton:
         type (str):
             Type of the button. Defaults to "callback_data".
 
+        style (str):
+            Style of the button. Defaults to None.
+
+        icon_custom_emoji_id (str | int):
+            Custom emoji ID. Defaults to None.
+
     Returns:
         :obj:`~hydrogram.types.InlineKeyboardButton`: An InlineKeyboardButton object.
     """
-    return InlineKeyboardButton(text, **{type: value})
+    return InlineKeyboardButton(
+        text,
+        **{type: value},
+        style=style,
+        icon_custom_emoji_id=icon_custom_emoji_id,
+    )
 
 
 # The inverse of ikb()
