@@ -136,6 +136,19 @@ class InlineKeyboardButton(Object):
         return None
 
     async def write(self, client: hydrogram.Client):
+        style_obj = None
+        if self.style is not None or self.icon_custom_emoji_id is not None:
+            bg_primary = self.style == "primary"
+            bg_danger = self.style == "danger"
+            bg_success = self.style == "success"
+            icon = int(self.icon_custom_emoji_id) if self.icon_custom_emoji_id is not None else None
+            style_obj = raw.types.KeyboardButtonStyle(
+                bg_primary=bg_primary,
+                bg_danger=bg_danger,
+                bg_success=bg_success,
+                icon=icon
+            )
+
         if self.callback_data is not None:
             # Telegram only wants bytes, but we are allowed to pass strings too, for convenience.
             data = (
@@ -144,10 +157,10 @@ class InlineKeyboardButton(Object):
                 else self.callback_data
             )
 
-            return raw.types.KeyboardButtonCallback(text=self.text, data=data)
+            return raw.types.KeyboardButtonCallback(text=self.text, data=data, style=style_obj)
 
         if self.url is not None:
-            return raw.types.KeyboardButtonUrl(text=self.text, url=self.url)
+            return raw.types.KeyboardButtonUrl(text=self.text, url=self.url, style=style_obj)
 
         if self.login_url is not None:
             return self.login_url.write(
@@ -162,7 +175,7 @@ class InlineKeyboardButton(Object):
 
         if self.switch_inline_query is not None:
             return raw.types.KeyboardButtonSwitchInline(
-                text=self.text, query=self.switch_inline_query
+                text=self.text, query=self.switch_inline_query, style=style_obj
             )
 
         if self.switch_inline_query_current_chat is not None:
@@ -170,11 +183,12 @@ class InlineKeyboardButton(Object):
                 text=self.text,
                 query=self.switch_inline_query_current_chat,
                 same_peer=True,
+                style=style_obj,
             )
 
         if self.callback_game is not None:
-            return raw.types.KeyboardButtonGame(text=self.text)
+            return raw.types.KeyboardButtonGame(text=self.text, style=style_obj)
 
         if self.web_app is not None:
-            return raw.types.KeyboardButtonWebView(text=self.text, url=self.web_app.url)
+            return raw.types.KeyboardButtonWebView(text=self.text, url=self.web_app.url, style=style_obj)
         return None
