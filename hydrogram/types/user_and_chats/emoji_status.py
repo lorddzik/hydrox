@@ -54,17 +54,10 @@ class EmojiStatus(Object):
 
     @staticmethod
     def _parse(client, emoji_status: raw.base.EmojiStatus) -> EmojiStatus | None:
-        # Layer 227+: EmojiStatusUntil was merged into EmojiStatus with optional 'until' field
         if isinstance(emoji_status, raw.types.EmojiStatus):
-            until = getattr(emoji_status, "until", None)
-            return EmojiStatus(
-                client=client,
-                custom_emoji_id=emoji_status.document_id,
-                until_date=utils.timestamp_to_datetime(until) if until else None,
-            )
+            return EmojiStatus(client=client, custom_emoji_id=emoji_status.document_id)
 
-        # Fallback: handle old EmojiStatusUntil if still present in any schema
-        if hasattr(raw.types, "EmojiStatusUntil") and isinstance(emoji_status, raw.types.EmojiStatusUntil):
+        if isinstance(emoji_status, raw.types.EmojiStatusUntil):
             return EmojiStatus(
                 client=client,
                 custom_emoji_id=emoji_status.document_id,
@@ -75,13 +68,7 @@ class EmojiStatus(Object):
 
     def write(self):
         if self.until_date:
-            # Layer 227+: Use EmojiStatus with 'until' field if EmojiStatusUntil not available
-            if hasattr(raw.types, "EmojiStatusUntil"):
-                return raw.types.EmojiStatusUntil(
-                    document_id=self.custom_emoji_id,
-                    until=utils.datetime_to_timestamp(self.until_date),
-                )
-            return raw.types.EmojiStatus(
+            return raw.types.EmojiStatusUntil(
                 document_id=self.custom_emoji_id,
                 until=utils.datetime_to_timestamp(self.until_date),
             )
